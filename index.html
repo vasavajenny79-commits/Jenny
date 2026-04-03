@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Will You Marry Me, Patel? 💖</title>
+    <style>
+        /* --- CSS SECTION --- */
+        :root {
+            --bg-color: #f0fff4; /* Soft Pastel Green */
+            --dark-green: #2d6a4f;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Arial', sans-serif;
+            transition: background 0.5s ease;
+        }
+
+        .container {
+            text-align: center;
+            z-index: 10;
+            padding: 15px;
+            width: 100%;
+        }
+
+        h1 { color: var(--dark-green); font-size: 1.8rem; margin: 0 0 5px 0; }
+        .sub { color: #409167; font-size: 1.1rem; margin: 0 0 25px 0; font-style: italic; }
+
+        .bunny-card {
+            background: white;
+            padding: 15px;
+            border-radius: 50%;
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+        }
+
+        .bunny-img { width: 150px; transition: 0.3s; border-radius: 50%; }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+            min-height: 100px;
+            position: relative;
+        }
+
+        button {
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        #yesBtn { background: #52b788; color: white; z-index: 100; }
+        #noBtn { background: #d8f3dc; color: #1b4332; position: relative; }
+
+        .hidden { display: none !important; }
+
+        /* Celebration Animation */
+        .celebrate-bunny {
+            width: 220px;
+            animation: zoomSpin 3s infinite ease-in-out alternate;
+            border-radius: 50%;
+            background: white;
+            padding: 10px;
+            margin: 0 auto;
+        }
+
+        @keyframes zoomSpin {
+            0% { transform: scale(1) rotate(-5deg); }
+            100% { transform: scale(1.15) rotate(5deg); }
+        }
+
+        /* Falling Items Rain */
+        .falling-item {
+            position: fixed;
+            top: -10vh;
+            animation: fall linear forwards;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
+
+        #toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #409167;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            opacity: 0;
+            transition: 0.5s;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="bgMusic" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="proposalScreen" class="container">
+        <h1 id="mainTitle">Will You Marry Me, Patel? 💖</h1>
+        <p class="sub">Will you make me a Patel too? 🥺💍</p>
+
+        <div class="bunny-card">
+            <img id="displayBunny" src="https://media.tenor.com/7S_O6B_f0vEAAAAi/milk-and-mocha.gif" class="bunny-img">
+        </div>
+
+        <div class="buttons">
+            <button id="yesBtn">Yes 💕</button>
+            <button id="noBtn">No 😢</button>
+        </div>
+    </div>
+
+    <div id="celebrationScreen" class="container hidden">
+        <h1>I KNEW YOU WOULD SAY YES! 💖</h1>
+        <p class="sub">You've made me the happiest person ever! 💕</p>
+        <img src="https://media.tenor.com/0F7eF97X070AAAAi/milk-and-mocha.gif" class="celebrate-bunny">
+        <div style="font-size: 3rem; margin-top: 15px;">💋😘💌</div>
+    </div>
+
+    <div id="toast"></div>
+
+    <script>
+        /* --- JS SECTION --- */
+        let noCount = 0;
+        let hasTouchedNo = false;
+
+        const noBtn = document.getElementById("noBtn");
+        const yesBtn = document.getElementById("yesBtn");
+        const bunny = document.getElementById("displayBunny");
+        const music = document.getElementById("bgMusic");
+        const toast = document.getElementById("toast");
+        const mainTitle = document.getElementById("mainTitle");
+
+        const gifs = {
+            shy: "https://media.tenor.com/7S_O6B_f0vEAAAAi/milk-and-mocha.gif",
+            sad: "https://media.tenor.com/T0_6pXF7v6UAAAAi/milk-and-mocha.gif",
+            crying: "https://media.tenor.com/8mX_O7p_YpAAAAAi/milk-and-mocha.gif",
+            begging: "https://media.tenor.com/vN3fHOCT9K8eFmP4XJ/milk-and-mocha.gif",
+            playful: "https://media.tenor.com/Y3U7I-Y9K_MAAAAi/milk-and-mocha.gif"
+        };
+
+        function showToast(msg) {
+            toast.innerText = msg;
+            toast.style.opacity = 1;
+            setTimeout(() => toast.style.opacity = 0, 2000);
+        }
+
+        noBtn.addEventListener("click", () => {
+            noCount++;
+            hasTouchedNo = true;
+            music.play().catch(() => {}); // Autoplay bypass
+
+            if (noCount === 1) {
+                noBtn.innerText = "Are you sure? 🥺";
+                bunny.src = gifs.sad;
+                showToast("Soch lo... 🥺");
+            } else if (noCount === 2) {
+                noBtn.innerText = "Really sure? 😭";
+                bunny.src = gifs.crying;
+                showToast("Dil toot jayega! 💔");
+            } else if (noCount === 3) {
+                noBtn.innerText = "Last chance! 💔";
+                bunny.src = gifs.begging;
+            } else {
+                noBtn.innerText = "Catch me! 😜";
+                bunny.src = gifs.playful;
+                noBtn.style.position = "fixed";
+                
+                // Move button randomly
+                const maxX = window.innerWidth - 100;
+                const maxY = window.innerHeight - 50;
+                noBtn.style.left = Math.random() * maxX + "px";
+                noBtn.style.top = Math.random() * maxY + "px";
+            }
+
+            // Yes button gets bigger!
+            yesBtn.style.transform = `scale(${1 + noCount * 0.3})`;
+        });
+
+        yesBtn.addEventListener("click", () => {
+            if (!hasTouchedNo) {
+                showToast("Pehle 'No' click karke dekho! 😜");
+                mainTitle.innerText = "Arey! Mana toh karo! 😂";
+            } else if (noCount < 3) {
+                showToast("Thoda aur manaao! 🥺");
+            } else {
+                document.getElementById("proposalScreen").classList.add("hidden");
+                document.getElementById("celebrationScreen").classList.remove("hidden");
+                document.body.style.background = "#e6fffa";
+                startRain();
+            }
+        });
+
+        function startRain() {
+            setInterval(() => {
+                const symbols = ["💖", "💕", "❤️", "💌"];
+                const el = document.createElement('div');
+                el.innerHTML = symbols[Math.floor(Math.random() * symbols.length)];
+                el.className = 'falling-item';
+                el.style.left = Math.random() * 100 + "vw";
+                el.style.fontSize = Math.random() * 20 + 15 + "px";
+                el.style.animationDuration = (Math.random() * 2 + 3) + "s";
+                document.body.appendChild(el);
+                setTimeout(() => el.remove(), 4000);
+            }, 300);
+        }
+    </script>
+</body>
+</html>
